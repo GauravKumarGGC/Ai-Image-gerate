@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <style>
+        /* Base styling for body */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1e1e2f;
+            background-image: radial-gradient(circle at 10% 20%, #2d2d3d 0%, #1e1e2f 90%);
+        }
+
+        /* Container styling */
+        .container {
+            text-align: center;
+            background: #2e2e3f;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            max-width: 450px;
+            width: 100%;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 25px;
+            border: 1px solid #3a3a4f;
+        }
+
+        /* Header styling */
+        .container h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #4facfe;
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Input and button styling */
+        input[type="text"], button {
+            padding: 14px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        /* Centered placeholder text */
+        input[type="text"]::placeholder {
+            text-align: center;
+            color: #aaa;
+        }
+
+        /* Input styling */
+        input[type="text"] {
+            background-color: #3a3a4f;
+            color: #fff;
+            border: 1px solid #4a4a5f;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3);
+        }
+
+        /* Button styling */
+        button {
+            cursor: pointer;
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Pulse animation on button click */
+        button:active::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: pulse 0.6s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* Image styling */
+        img {
+            max-width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid #4a4a5f;
+        }
+
+        /* Button group styling */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        /* Loading spinner styling */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            display: none;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Telegram button styling */
+        .telegram-link {
+            margin-top: 20px;
+            display: none;
+            text-decoration: none;
+            padding: 12px 25px;
+            color: white;
+            font-weight: 600;
+            background: linear-gradient(to right, #0088cc 0%, #00aced 100%);
+            border-radius: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .telegram-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
+        }
+
+        /* Footer styling */
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                border-radius: 12px;
+            }
+            
+            .container h1 {
+                font-size: 26px;
+            }
+            
+            input[type="text"], button {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gaurav's AI Image Generator</h1>
+        <input type="text" id="promptInput" placeholder="Describe the image you want to create..." />
+
+        <button onclick="generateImage()">Generate Image</button>
+
+        <div class="button-group">
+            <button id="regenerateButton" onclick="regenerateImage()" style="display: none;">Regenerate</button>
+        </div>
+
+        <div class="spinner" id="loadingSpinner"></div>
+
+        <img id="generatedImage" src="" alt="AI Generated Image" />
+
+        <!-- Telegram link button -->
+        <a href="https://t.me/KARMA_OVERFLOW" target="_blank" class="telegram-link" id="telegramLink">
+            Join Our Telegram Channel
+        </a>
+
+        <div class="footer">
+            Powered by AI magic ✨
+        </div>
+    </div>
+
+    <script>
+        // Function to generate or regenerate the image
+        function generateImage() {
+            const prompt = document.getElementById("promptInput").value.trim();
+            if (!prompt) {
+                alert("Please enter a description for your image.");
+                return;
+            }
+            displayImage(prompt);
+        }
+
+        function regenerateImage() {
+            const prompt = document.getElementById("promptInput").value.trim();
+            if (!prompt) {
+                alert("Please enter a description for your image.");
+                return;
+            }
+            displayImage(prompt);
+        }
+
+        // Helper function to display the image with loading animation
+        function displayImage(prompt) {
+            const imageUrl = `https://img.hazex.workers.dev/?prompt=${encodeURIComponent(prompt)}&improve=true&format=square&random=${Math.random()}`;
+            const imageElement = document.getElementById("generatedImage");
+            const spinner = document.getElementById("loadingSpinner");
+            const regenerateButton = document.getElementById("regenerateButton");
+            const telegramLink = document.getElementById("telegramLink");
+
+            // Show loading state
+            spinner.style.display = "block";
+            imageElement.style.display = "none";
+            regenerateButton.style.display = "none";
+            telegramLink.style.display = "none";
+
+            // Load the image
+            imageElement.onload = () => {
+                spinner.style.display = "none";
+                imageElement.style.display = "block";
+                regenerateButton.style.display = "inline-block";
+                telegramLink.style.display = "inline-block";
+            };
+
+            // Handle image loading errors
+            imageElement.onerror = () => {
+                spinner.style.display = "none";
+                alert("Failed to generate image. Please try again with a different prompt.");
+            };
+
+            // Set the image source
+            imageElement.src = imageUrl;
+        }
+
+        // Allow pressing Enter key to generate image
+        document.getElementById("promptInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                generateImage();
+            }
+        });
+    </script>
+</body>
+</html>
